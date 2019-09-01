@@ -2,12 +2,15 @@
 <ui version="4.0">
  <class>QTMainWindow</class>
  <widget class="QMainWindow" name="QTMainWindow">
+  <property name="windowModality">
+   <enum>Qt::WindowModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>944</width>
-    <height>654</height>
+    <width>1920</width>
+    <height>1080</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -254,7 +257,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="rukuButton">
         <property name="text">
          <string>入库</string>
         </property>
@@ -320,7 +323,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>944</width>
+     <width>1920</width>
      <height>31</height>
     </rect>
    </property>

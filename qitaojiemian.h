@@ -15,6 +15,8 @@
 #include <QStandardItemModel>
 #include <QTreeView>
 
+#include "ruku.h"
+
 namespace Ui {
 class QTMainWindow;
 }
@@ -50,6 +52,9 @@ class QTMainWindow : public QMainWindow {
 
   // 当前选中的零件
   QModelIndex cur_selected_ruku_index_;
+
+  // 入库界面
+  RuKu *ruku_;
 };
 
 #endif  // QITAOJIEMIAN_H

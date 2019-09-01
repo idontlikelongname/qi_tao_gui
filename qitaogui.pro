@@ -26,4 +26,5 @@ RESOURCES += \
 
 FORMS += \
     qitaojiemian.ui \
-    chukujiemian.ui
+    chukujiemian.ui \
+    ruku.ui

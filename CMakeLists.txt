@@ -18,17 +18,28 @@ if(CMAKE_VERSION VERSION_LESS "3.7.0")
     set(CMAKE_INCLUDE_CURRENT_DIR ON)
 endif()
 
-find_package(Qt5 COMPONENTS Widgets Core REQUIRED)
+find_package(Qt5 COMPONENTS Widgets Core SerialPort REQUIRED)
+
+# OpenCV
+find_package(OpenCV)
+include_directories(${OpenCV_INCLUDE_DIRS})
 
 add_executable(dan_fa_qi_tao
     main.cpp 
     chukujiemian.cpp 
     dialog.cpp 
     qitaojiemian.cpp
-    wigglywidget.cpp  
+    wigglywidget.cpp 
+    ruku.cpp 
     res.qrc  
     qitaojiemian.ui     
     chukujiemian.ui
+    ruku.ui
 )
 
-target_link_libraries(dan_fa_qi_tao Qt5::Widgets Qt5::Core)
+target_link_libraries(dan_fa_qi_tao 
+    ${OpenCV_LIBRARIES} 
+    Qt5::Widgets 
+    Qt5::Core
+    Qt5::SerialPort
+)

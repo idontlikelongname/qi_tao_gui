@@ -102,9 +102,8 @@ QTMainWindow::QTMainWindow(QWidget *parent)
 
 QTMainWindow::~QTMainWindow() {
   delete ui;
-  saveJsonFile(
-      bom_json_info_,
-      QString("/home/yangxx/codes/Qt/dan_fa_qi_tao/resources/bom.json"));
+  saveJsonFile(bom_json_info_,
+               QString("/home/yangxx/codes/Qt/qi_tao_gui/resources/bom.json"));
 }
 
 void QTMainWindow::Init() {
@@ -120,14 +119,14 @@ void QTMainWindow::Init() {
   ui->label_4->setFont(font3);
   ui->lineEdit->setFont(font3);
   ui->pushButton->setFont(font3);
-  ui->pushButton_2->setFont(font3);
+  ui->rukuButton->setFont(font3);
 
   ui->toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
   this->setWindowState(Qt::WindowMaximized);
 
   // from json file to parse the bom infomation
   bom_json_info_ = loadJsonFile(
-      QString("/home/yangxx/codes/Qt/dan_fa_qi_tao/resources/bom.json"));
+      QString("/home/yangxx/codes/Qt/qi_tao_gui/resources/bom.json"));
 
   InitTreeView();
   connect(ui->treeView->selectionModel(),
@@ -138,6 +137,9 @@ void QTMainWindow::Init() {
   SearchStandardByID();
 
   connect(ui->actExit, SIGNAL(triggered()), this, SLOT(on_actExit_triggered()));
+  connect(ui->rukuButton, SIGNAL(clicked()), this, SLOT(on_ruku_clicked()));
+
+  ruku_ = new RuKu(this);
 }
 
 void QTMainWindow::SearchStandardByID() {
@@ -350,11 +352,27 @@ void QTMainWindow::on_ruku_clicked() {
   //
   // 如果当前未选中有效的index
   if (QModelIndex() == cur_selected_ruku_index_) {
-    // TODO:
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("单发齐套柜");
+    msgBox.setText("入库前，请选中有效的标准件");
+    // msgBox.setInformativeText("Do you want to start a new deck?");
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setStandardButtons(QMessageBox::Yes);
+    msgBox.setStyleSheet(
+        "QLabel{width:300 px; font-size: 30px;} "
+        "QPushButton{ width:130 px; font-size: 35px;}");
+    int r = msgBox.exec();
     return;
   }
 
   // TODO: 弹出入库窗口，进行入库操作
+  ruku_->setWindowModality(Qt::ApplicationModal);
+  Qt::WindowFlags flags = Qt::Dialog;
+  // flags |= Qt::WindowMaximizeButtonHint;
+  flags |= Qt::WindowMinimizeButtonHint;
+  ruku_->setWindowFlags(flags);
+  ruku_->Display();
+  ruku_->exec();
 }
 
 void QTMainWindow::on_actExit_triggered() {
