@@ -17,6 +17,8 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
 
+#include "serial_constant.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class RuKuDialog;
@@ -54,11 +56,15 @@ class RuKu : public QDialog {
   cv::Mat cur_image_;
   cv::Mat record_image_;
 
+  // 标准件重量
+
  private:
   // just for debug
   cv::VideoCapture *camera_cap_;
   QSerialPort serial_scale_;
   QSerialPort serial_locker_;
+  float current_scale_;
+  QByteArray scale_data_buffer_;
 };
 
 #endif  // RUKU_H

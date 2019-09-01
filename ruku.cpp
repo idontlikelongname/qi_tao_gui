@@ -39,6 +39,9 @@ void RuKu::Display() {
   if (!record_image_.empty()) {
     record_image_.release();
   }
+
+  current_scale_ = 0.0;
+  scale_data_buffer_.clear();
 }
 
 void RuKu::OpenCamera() {
@@ -115,6 +118,37 @@ void RuKu::loopOnce() {
   }
 
   // 根据台秤返回的重量数据，更新显示界面
+  // 解析读取的台秤数据，提取其中的重量数据
+  // qDebug() << scale_data_buffer_.size();
+  // qDebug() << scale_data_buffer_;
+  int32_t scale_data = 0;
+  if (scale_data_buffer_.size() > 18) {
+    int read_length = 0;
+    for (int bf_i = 0; bf_i < 9; ++bf_i) {
+      // 肯定能读到某帧数据
+      if (scale_data_buffer_.at(bf_i) == 0x01 &&
+          scale_data_buffer_.at(bf_i + 1) == 0x03 &&
+          scale_data_buffer_.at(bf_i + 2) == 0x04) {
+        // 读取接下来的4byte数据
+        scale_data |= (0xff & scale_data_buffer_.at(bf_i + 3)) << 24;
+        scale_data |= (0xff & scale_data_buffer_.at(bf_i + 4)) << 16;
+        scale_data |= (0xff & scale_data_buffer_.at(bf_i + 5)) << 8;
+        scale_data |= (0xff & scale_data_buffer_.at(bf_i + 6));
+        qDebug() << "Read Valid scale:" << static_cast<int32_t>(scale_data);
+        read_length = bf_i + 6;
+        current_scale_ = scale_data / 100.0;
+
+        // TODO: 更新重量栏
+      }
+    }
+
+    if (read_length > 0) {
+      scale_data_buffer_.remove(0, read_length);
+    }
+  }
+
+  // 发送读取重量的请求，在scale_readyReadSlot中读取重量数据
+  serial_scale_.write(READ_SCALE, 8);
 }
 
 void RuKu::captureImage_trigger() {
@@ -134,7 +168,17 @@ void RuKu::captureImage_trigger() {
   }
 }
 
-void RuKu::finished_trigger() { qDebug() << "finished ruku"; }
+void RuKu::finished_trigger() {
+  qDebug() << "finished ruku";
+  // TODO: 首先检查是否符合开门要求，不符合开门要求，弹窗警告
+
+  // 打开柜门
+  int locker_number = 2;  // TODO:
+  char sender_cmd[13];
+  strncpy(sender_cmd, OPEN_LOCKER, 13);
+  sender_cmd[10] = static_cast<char>(locker_number);
+  serial_locker_.write(sender_cmd, 13);
+}
 
 void RuKu::exit_trigger() {
   qDebug() << "Close Ruku dialog";
@@ -149,10 +193,18 @@ void RuKu::exit_trigger() {
   if (!record_image_.empty()) {
     record_image_.release();
   }
+  current_scale_ = 0.0;
 
   this->hide();
 }
 
-void RuKu::scale_readyReadSlot() {}
+void RuKu::scale_readyReadSlot() {
+  qDebug() << "Scale Ready Read";
+  QByteArray arr = serial_scale_.readLine();
+
+  for (int i = 0; i < arr.size(); ++i) {
+    scale_data_buffer_.append(arr.at(i));
+  }
+}
 
 void RuKu::locker_readyReadSlot() {}

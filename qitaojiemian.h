@@ -3,9 +3,6 @@
 
 #include <QDialog>
 #include <QFile>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
 #include <QList>
 #include <QMainWindow>
 #include <QMap>
@@ -15,6 +12,7 @@
 #include <QStandardItemModel>
 #include <QTreeView>
 
+#include "data_model.h"
 #include "ruku.h"
 
 namespace Ui {

@@ -1,10 +1,23 @@
 #ifndef DIALOG_H
 #define DIALOG_H
 
+#include <QDialog>
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QList>
+#include <QMainWindow>
+#include <QMap>
+#include <QMessageBox>
+#include <QPainter>
+#include <QStandardItem>
+#include <QStandardItemModel>
+#include <QTreeView>
+
 #include <chukujiemian.h>
 #include <qitaojiemian.h>
-#include <QDialog>
-#include <QPainter>
+#include "data_model.h"
 
 //! [0]
 QT_BEGIN_NAMESPACE
@@ -44,6 +57,7 @@ class Dialog : public QDialog {
   void qingchualldata();
 
  private:
+  QJsonObject bom_json_info_;
   QTMainWindow *dialog_qitao;
   ChKMainWindow *dialog_chuku;
 };
