@@ -1,19 +1,22 @@
 QT += widgets
 QT += core 
 QT += sql
+QT += serialport
 
 HEADERS       = wigglywidget.h \
                 dialog.h \
     qitaojiemian.h \
     chukujiemian.h \
-    qwcomboboxdelegate.h
+    qwcomboboxdelegate.h \
+    ruku.h
 
 SOURCES       = wigglywidget.cpp \
                 dialog.cpp \
                 main.cpp \
     qitaojiemian.cpp \
     chukujiemian.cpp \
-    qwcomboboxdelegate.cpp
+    qwcomboboxdelegate.cpp \
+    ruku.cpp
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/widgets/widgets/wiggly

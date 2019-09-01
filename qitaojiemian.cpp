@@ -103,30 +103,42 @@ QTMainWindow::QTMainWindow(QWidget *parent)
 QTMainWindow::~QTMainWindow() {
   delete ui;
   saveJsonFile(bom_json_info_,
-               QString("/home/yangxx/codes/Qt/qi_tao_gui/resources/bom.json"));
+               QString("/home/xiaoxiao/Qt/qi_tao_gui/resources/bom.json"));
 }
 
 void QTMainWindow::Init() {
+ 
+ 
   //设置自体大小
-  QFont font1("Microsoft YaHei", 26, 50, false);
-  QFont font2("Microsoft YaHei", 18, 50, false);
-  QFont font3("Microsoft YaHei", 18, 50, false);
+  QFont font1("Microsoft YaHei", 36, 50, false);
+  QFont font2("Microsoft YaHei", 32, 50, false);
+  QFont font3("Microsoft YaHei", 28, 50, false);
+  QFont font4("Microsoft YaHei", 24, 50, false);
+
 
   ui->menubar->setFont(font1);
   ui->toolBar->setFont(font2);
+  //ui->toolBar->setIconSize(QSize(50,50));
+  //ui->toolBar->setFixedSize(150,150);
 
   ui->label_3->setFont(font3);
   ui->label_4->setFont(font3);
   ui->lineEdit->setFont(font3);
   ui->pushButton->setFont(font3);
+  ui->qingchuButton->setFont(font3);
+
   ui->rukuButton->setFont(font3);
+  ui->rukuButton->setFixedSize(300,70);
+
+  ui->treeView->setFont(font4);
+
 
   ui->toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
   this->setWindowState(Qt::WindowMaximized);
 
   // from json file to parse the bom infomation
   bom_json_info_ = loadJsonFile(
-      QString("/home/yangxx/codes/Qt/qi_tao_gui/resources/bom.json"));
+      QString("/home/xiaoxiao/Qt/qi_tao_gui/resources/bom.json"));
 
   InitTreeView();
   connect(ui->treeView->selectionModel(),
@@ -240,6 +252,7 @@ void QTMainWindow::InitTreeView() {
   // 设置标签
   bom_model_->setHorizontalHeaderLabels(tree_titles);
 
+
   // 读取bom表的数据
   QJsonObject bom_list = bom_json_info_["信息"].toObject();
   QStringList keys = bom_list.keys();
@@ -296,6 +309,15 @@ void QTMainWindow::InitTreeView() {
   }
 
   ui->treeView->setModel(bom_model_);
+
+  ui->treeView->setColumnWidth(0,500);
+  ui->treeView->setColumnWidth(1,320);
+  ui->treeView->setColumnWidth(2,220);
+  ui->treeView->setColumnWidth(3,200);
+  ui->treeView->setColumnWidth(4,200);
+  ui->treeView->setColumnWidth(5,200);
+  ui->treeView->setColumnWidth(6,200);
+
   ui->treeView->resize(500, 500);
   ui->treeView->show();
   // ui->treeView->expandAll();
