@@ -15,6 +15,8 @@
 #include <QStandardItemModel>
 #include <QTreeView>
 
+#include "data_model.h"
+
 namespace Ui {
 class ChKMainWindow;
 }
@@ -23,7 +25,7 @@ class ChKMainWindow : public QMainWindow {
   Q_OBJECT
 
  public:
-  explicit ChKMainWindow(QWidget *parent = 0);
+  explicit ChKMainWindow(QJsonObject *bom_data, QWidget *parent = 0);
   ~ChKMainWindow();
 
   QWidget *parent_dlg;
@@ -33,6 +35,15 @@ class ChKMainWindow : public QMainWindow {
 
  private:
   Ui::ChKMainWindow *ui;
+
+  QStandardItemModel *bom_model_;
+  QJsonObject *bom_json_info_;
+  QJsonArray json_titles_;
+
+
+  void Init();
+  void InitTreeView();
+  void UpdateTreeView();
   void paintEvent(QPaintEvent *event);
 };
 

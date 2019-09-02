@@ -211,13 +211,14 @@ void QTMainWindow::InitTreeView() {
 
   ui->treeView->setModel(bom_model_);
 
-  ui->treeView->setColumnWidth(0, 500);
+  ui->treeView->setColumnWidth(0, 450);
   ui->treeView->setColumnWidth(1, 320);
   ui->treeView->setColumnWidth(2, 220);
   ui->treeView->setColumnWidth(3, 200);
-  ui->treeView->setColumnWidth(4, 200);
-  ui->treeView->setColumnWidth(5, 200);
-  ui->treeView->setColumnWidth(6, 200);
+  ui->treeView->setColumnWidth(4, 140);
+  ui->treeView->setColumnWidth(5, 140);
+  ui->treeView->setColumnWidth(6, 150);
+  ui->treeView->setColumnWidth(7, 150);
 
   ui->treeView->resize(500, 500);
   ui->treeView->show();
