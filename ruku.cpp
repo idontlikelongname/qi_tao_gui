@@ -8,7 +8,8 @@ RuKu::RuKu(QJsonObject *bom_json, QWidget *parent)
     : QDialog(parent),
       ui(new Ui::RuKuDialog),
       camera_cap_(NULL),
-      bom_json_info_(bom_json) {
+      bom_json_info_(bom_json),
+      open_locker_loop_time_(0) {
   // 禁止调整窗口大小 移动窗口
   // this->setWindowFlags(this->windowFlags() | (Qt::WindowMaximizeButtonHint |
   //                                             Qt::WindowMinimizeButtonHint |
@@ -48,6 +49,11 @@ void RuKu::Init() {
   loop_timer_ = new QTimer(this);
   loop_timer_->setInterval(100);
   connect(loop_timer_, SIGNAL(timeout()), this, SLOT(loopOnce()));
+
+  open_locker_timer_ = new QTimer(this);
+  open_locker_timer_->setInterval(700);
+  connect(open_locker_timer_, SIGNAL(timeout()), this,
+          SLOT(open_locker_loop()));
 
   connect(ui->captureButton, SIGNAL(clicked()), this,
           SLOT(captureImage_trigger()));
@@ -95,7 +101,7 @@ void RuKu::OpenSerial() {
   // 打开台秤串口
   connect(&serial_scale_, SIGNAL(readyRead()), this,
           SLOT(scale_readyReadSlot()));
-  serial_scale_.setPortName("scale_port");
+  serial_scale_.setPortName("ttyUSB0");
   serial_scale_.setBaudRate(QSerialPort::Baud9600);
   serial_scale_.setParity(QSerialPort::NoParity);
   serial_scale_.setDataBits(QSerialPort::Data8);
@@ -110,7 +116,7 @@ void RuKu::OpenSerial() {
   // 打开柜门串口
   connect(&serial_locker_, SIGNAL(readyRead()), this,
           SLOT(locker_readyReadSlot()));
-  serial_locker_.setPortName("locker_port");
+  serial_locker_.setPortName("ttyUSB1");
   serial_locker_.setBaudRate(QSerialPort::Baud19200);
   serial_locker_.setParity(QSerialPort::NoParity);
   serial_locker_.setDataBits(QSerialPort::Data8);
@@ -214,7 +220,6 @@ void RuKu::finished_trigger() {
     msgBox.setStyleSheet(
         "QLabel{width:300 px; font-size: 30px;} "
         "QPushButton{ width:60 px; font-size: 20px;}");
-    int r = msgBox.exec();
 
     if (msgBox.exec() != QMessageBox::Yes) {
       return;
@@ -222,10 +227,13 @@ void RuKu::finished_trigger() {
   }
 
   // 根据输入的柜门ID，打开相应的柜门
-  char sender_cmd[13];
-  strncpy(sender_cmd, OPEN_LOCKER, 13);
-  sender_cmd[10] = static_cast<char>(cur_selected_standard_info_.locker_id);
-  serial_locker_.write(sender_cmd, 13);
+  // qDebug() << "Open the locker:" << cur_selected_standard_info_.locker_id;
+  // char sender_cmd[13];
+  // strncpy(sender_cmd, OPEN_LOCKER, 13);
+  // sender_cmd[10] = static_cast<char>(cur_selected_standard_info_.locker_id);
+  // serial_locker_.write(sender_cmd, 13);
+  open_locker_loop_time_ = 3;
+  open_locker_timer_->start();
 
   // 更新bom表中的信息
   QJsonObject bom_list = (*bom_json_info_)["信息"].toObject();
@@ -242,6 +250,7 @@ void RuKu::finished_trigger() {
     QString std_key = std_it.key();
     QJsonObject std_info = std_it.value().toObject();
     std_info["仓库编号"] = cur_selected_standard_info_.locker_id;
+    part_info[std_key] = std_info;
   }
   bom_list[cur_selected_standard_info_.part_name] = part_info;
   (*bom_json_info_)["信息"] = bom_list;
@@ -275,3 +284,17 @@ void RuKu::scale_readyReadSlot() {
 }
 
 void RuKu::locker_readyReadSlot() {}
+
+void RuKu::open_locker_loop() {
+  if (open_locker_loop_time_ <= 0) {
+    open_locker_timer_->stop();
+  }
+
+  // 根据输入的柜门ID，打开相应的柜门
+  qDebug() << "Open the locker:" << cur_selected_standard_info_.locker_id;
+  char sender_cmd[13];
+  memcpy(sender_cmd, OPEN_LOCKER, 13);
+  sender_cmd[10] = 0x00 + 4;
+  serial_locker_.write(sender_cmd, 13);
+  open_locker_timer_--;
+}

@@ -46,3 +46,15 @@ target_link_libraries(dan_fa_qi_tao
     Qt5::Core
     Qt5::SerialPort
 )
+
+
+add_executable(serial_test
+    serial_test.cpp
+)
+
+target_link_libraries(serial_test
+    ${OpenCV_LIBRARIES} 
+    Qt5::Widgets 
+    Qt5::Core
+    Qt5::SerialPort
+)

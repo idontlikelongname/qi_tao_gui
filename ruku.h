@@ -44,6 +44,7 @@ class RuKu : public QDialog {
 
  private slots:
   void loopOnce();
+  void open_locker_loop();
   void captureImage_trigger();
   void finished_trigger();
   void exit_trigger();
@@ -54,6 +55,7 @@ class RuKu : public QDialog {
   QJsonObject *bom_json_info_;
   Ui::RuKuDialog *ui;
   QTimer *loop_timer_;
+  QTimer *open_locker_timer_;
 
   cv::Mat cur_image_;
   cv::Mat record_image_;
@@ -69,6 +71,8 @@ class RuKu : public QDialog {
   float current_scale_;
   int current_estimate_count_;
   QByteArray scale_data_buffer_;
+
+  int open_locker_loop_time_;
 };
 
 #endif  // RUKU_H

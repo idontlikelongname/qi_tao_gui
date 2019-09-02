@@ -32,6 +32,7 @@ class ChKMainWindow : public QMainWindow {
 
  private slots:
   void on_actExit_triggered();
+  void on_openButton_clicked();
 
  private:
   Ui::ChKMainWindow *ui;
@@ -39,7 +40,6 @@ class ChKMainWindow : public QMainWindow {
   QStandardItemModel *bom_model_;
   QJsonObject *bom_json_info_;
   QJsonArray json_titles_;
-
 
   void Init();
   void InitTreeView();

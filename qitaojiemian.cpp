@@ -306,8 +306,8 @@ void QTMainWindow::on_ruku_clicked() {
   QJsonObject bom_list = (*bom_json_info_)["信息"].toObject();
   qDebug() << "select locker";
   // 查找当前所有空柜子，随机分配一个柜子
-  int locker_ids[24] = {0,  1,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12,
-                        13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23};
+  int locker_ids[24] = {1,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13,
+                        14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
   std::map<int, bool> locker_state_map;
   for (QJsonObject::Iterator it = bom_list.begin(); it != bom_list.end();
        it++) {
@@ -323,6 +323,7 @@ void QTMainWindow::on_ruku_clicked() {
       }
     }
   }
+
   int selected_locker_id = -1;
   for (int l_id = 0; l_id < 24; ++l_id) {
     int locker_id = locker_ids[l_id];
@@ -331,6 +332,7 @@ void QTMainWindow::on_ruku_clicked() {
       selected_locker_id = locker_id;
     }
   }
+
   qDebug() << "select locker end:" << selected_locker_id;
   cur_selected_standard_info_.locker_id = selected_locker_id;
 
