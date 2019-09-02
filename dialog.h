@@ -15,10 +15,6 @@
 #include <QStandardItemModel>
 #include <QTreeView>
 
-#include <chukujiemian.h>
-#include <qitaojiemian.h>
-#include "data_model.h"
-
 //! [0]
 QT_BEGIN_NAMESPACE
 // class QAction;
@@ -31,12 +27,14 @@ QT_END_NAMESPACE
 
 //#include "dialog_chuku.h"
 #include "chukujiemian.h"
+#include "data_model.h"
 #include "qitaojiemian.h"
 
 class Dialog : public QDialog {
   Q_OBJECT
  public:
   explicit Dialog(QWidget *parent = 0);
+  ~Dialog();
 
  private:
   void Init();

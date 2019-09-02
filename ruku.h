@@ -17,6 +17,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
 
+#include "data_model.h"
 #include "serial_constant.h"
 
 QT_BEGIN_NAMESPACE
@@ -29,10 +30,10 @@ class RuKu : public QDialog {
   Q_OBJECT
 
  public:
-  explicit RuKu(QWidget *parent = 0);
+  explicit RuKu(QJsonObject *bom_json, QWidget *parent = 0);
   ~RuKu();
 
-  void Display();
+  void Display(CurrentStandard cur_standard_info);
 
  private:
   void Init();
@@ -50,6 +51,7 @@ class RuKu : public QDialog {
   void locker_readyReadSlot();
 
  private:
+  QJsonObject *bom_json_info_;
   Ui::RuKuDialog *ui;
   QTimer *loop_timer_;
 
@@ -57,6 +59,7 @@ class RuKu : public QDialog {
   cv::Mat record_image_;
 
   // 标准件重量
+  CurrentStandard cur_selected_standard_info_;
 
  private:
   // just for debug

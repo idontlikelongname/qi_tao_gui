@@ -70,7 +70,7 @@
        <widget class="QLineEdit" name="lineEdit"/>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="searchButton">
         <property name="text">
          <string>搜索</string>
         </property>

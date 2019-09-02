@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.1.0)
 
 project(dan_fa_qi_tao)
 
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3")
+
 # will generate in the <AUTOGEN_BUILD_DIR>/include
 # automatically added to the target's INCLUDE_DIRECTORIES
 set(CMAKE_AUTOMOC ON)
@@ -31,6 +33,7 @@ add_executable(dan_fa_qi_tao
     qitaojiemian.cpp
     wigglywidget.cpp 
     ruku.cpp 
+    data_model.cpp
     res.qrc  
     qitaojiemian.ui     
     chukujiemian.ui

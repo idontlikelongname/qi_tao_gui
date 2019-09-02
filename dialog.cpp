@@ -11,6 +11,10 @@ Dialog::Dialog(QWidget *parent) : QDialog(parent) {
   Init();
   this->showMaximized();
 }
+Dialog::~Dialog() {
+  saveJsonFile(bom_json_info_,
+               QString("/home/yangxx/codes/Qt/qi_tao_gui/resources/bom.json"));
+}
 void Dialog::Init() {
   // show text
   WigglyWidget *wigglyWidget = new WigglyWidget;
@@ -63,8 +67,12 @@ void Dialog::Init() {
   layout_v->addWidget(wigglyWidget);
   layout_v->addWidget(horizontalGroupBox);
 
+  // 从json文件中加载bom表信息
+  bom_json_info_ = loadJsonFile(
+      QString("/home/yangxx/codes/Qt/qi_tao_gui/resources/bom.json"));
+
   dialog_chuku = new ChKMainWindow(this);
-  dialog_qitao = new QTMainWindow(this);
+  dialog_qitao = new QTMainWindow(&bom_json_info_, this);
 }
 
 void Dialog::OnClickQiTao() {

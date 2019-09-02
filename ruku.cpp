@@ -4,8 +4,11 @@
 #include "ruku.h"
 #include "ui_ruku.h"
 
-RuKu::RuKu(QWidget *parent)
-    : QDialog(parent), ui(new Ui::RuKuDialog), camera_cap_(NULL) {
+RuKu::RuKu(QJsonObject *bom_json, QWidget *parent)
+    : QDialog(parent),
+      ui(new Ui::RuKuDialog),
+      camera_cap_(NULL),
+      bom_json_info_(bom_json) {
   // 禁止调整窗口大小 移动窗口
   // this->setWindowFlags(this->windowFlags() | (Qt::WindowMaximizeButtonHint |
   //                                             Qt::WindowMinimizeButtonHint |
@@ -28,7 +31,11 @@ void RuKu::Init() {
   connect(ui->exitButton, SIGNAL(clicked()), this, SLOT(exit_trigger()));
 }
 
-void RuKu::Display() {
+void RuKu::Display(CurrentStandard cur_standard_info) {
+  current_scale_ = 0.0;
+  scale_data_buffer_.clear();
+  cur_selected_standard_info_ = cur_standard_info;
+
   // TODO: try catch
   OpenCamera();
   OpenSerial();
@@ -39,9 +46,6 @@ void RuKu::Display() {
   if (!record_image_.empty()) {
     record_image_.release();
   }
-
-  current_scale_ = 0.0;
-  scale_data_buffer_.clear();
 }
 
 void RuKu::OpenCamera() {
@@ -178,6 +182,18 @@ void RuKu::finished_trigger() {
   strncpy(sender_cmd, OPEN_LOCKER, 13);
   sender_cmd[10] = static_cast<char>(locker_number);
   serial_locker_.write(sender_cmd, 13);
+
+  // 更新bom表中的信息
+  QJsonObject bom_list = (*bom_json_info_)["信息"].toObject();
+  // 查找当前所有空柜子，随机分配一个柜子
+  QJsonObject part_info =
+      bom_list[cur_selected_standard_info_.part_name].toObject();
+  QJsonObject standard_info =
+      part_info[cur_selected_standard_info_.std_name].toObject();
+  standard_info["入库状态"] = true;
+  part_info[cur_selected_standard_info_.std_name] = standard_info;
+  bom_list[cur_selected_standard_info_.part_name] = part_info;
+  (*bom_json_info_)["信息"] = bom_list;
 }
 
 void RuKu::exit_trigger() {

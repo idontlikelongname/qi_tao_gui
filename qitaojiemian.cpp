@@ -5,8 +5,8 @@
 #include "qitaojiemian.h"
 #include "ui_qitaojiemian.h"
 
-QTMainWindow::QTMainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::QTMainWindow) {
+QTMainWindow::QTMainWindow(QJsonObject *bom_data, QWidget *parent)
+    : QMainWindow(parent), ui(new Ui::QTMainWindow), bom_json_info_(bom_data) {
   parent_dlg = parent;
   ui->setupUi(this);
 
@@ -29,15 +29,11 @@ void QTMainWindow::Init() {
   ui->label_3->setFont(font3);
   ui->label_4->setFont(font3);
   ui->lineEdit->setFont(font3);
-  ui->pushButton->setFont(font3);
+  ui->searchButton->setFont(font3);
   ui->rukuButton->setFont(font3);
 
   ui->toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
   this->setWindowState(Qt::WindowMaximized);
-
-  // from json file to parse the bom infomation
-  bom_json_info_ = loadJsonFile(
-      QString("/home/yangxx/codes/Qt/qi_tao_gui/resources/bom.json"));
 
   InitTreeView();
   connect(ui->treeView->selectionModel(),
@@ -45,20 +41,19 @@ void QTMainWindow::Init() {
           SLOT(currentChangedShot(const QModelIndex &, const QModelIndex &)));
 
   UpdateTreeView();
-  SearchStandardByID();
 
   connect(ui->actExit, SIGNAL(triggered()), this, SLOT(on_actExit_triggered()));
   connect(ui->rukuButton, SIGNAL(clicked()), this, SLOT(on_ruku_clicked()));
+  connect(ui->lineEdit, SIGNAL(textChanged(const QString &)), this,
+          SLOT(on_search_changed(const QString &)));
+  connect(ui->searchButton, SIGNAL(clicked()), this, SLOT(on_search_clicked()));
 
-  ruku_ = new RuKu(this);
+  ruku_ = new RuKu(bom_json_info_, this);
 }
 
-void QTMainWindow::SearchStandardByID() {
-  QString search_info("垫圈4");
+void QTMainWindow::SearchStandardByID(QString search_info) {
   // setExpanded(const QModelIndex &index, bool expanded);
 
-  // 首先收回所有expand
-  ui->treeView->collapseAll();
   for (int row = 0; row < bom_model_->rowCount(); ++row) {
     //
     QStandardItem *part_item = bom_model_->item(row, 0);
@@ -83,13 +78,13 @@ void QTMainWindow::SearchStandardByID() {
 
 void QTMainWindow::UpdateTreeView() {
   // 读取bom表的数据
-  QJsonObject bom_list = bom_json_info_["信息"].toObject();
+  QJsonObject bom_list = (*bom_json_info_)["信息"].toObject();
   QStringList keys = bom_list.keys();
   for (int row = 0; row < bom_model_->rowCount(); ++row) {
     // 部件层
     QStandardItem *part_item = bom_model_->item(row, 0);
     QString part_name_text = part_item->data(Qt::DisplayRole).toString();
-    qDebug() << part_name_text << " " << part_item->rowCount();
+    // qDebug() << part_name_text << " " << part_item->rowCount();
     // 如果当前treeview中的part在json中存在，更新treeview中的信息
     // 肯定包含
     if (bom_list.contains(part_name_text)) {
@@ -98,7 +93,7 @@ void QTMainWindow::UpdateTreeView() {
       for (int std_idx = 0; std_idx < part_item->rowCount(); ++std_idx) {
         QStandardItem *std_item = part_item->child(std_idx, 0);
         QString std_name_text = std_item->data(Qt::DisplayRole).toString();
-        qDebug() << std_name_text;
+        // qDebug() << std_name_text;
         QJsonObject std_info = standard_part_list[std_name_text].toObject();
         // 1. 编号 string
         part_item->child(std_idx, 1)
@@ -142,7 +137,7 @@ void QTMainWindow::InitTreeView() {
   // 读取tree table的标签
   QMap<int, QString> info_tile_map;
   QStringList tree_titles;
-  json_titles_ = bom_json_info_["标题"].toArray();
+  json_titles_ = (*bom_json_info_)["标题"].toArray();
   for (int t_id = 0; t_id < json_titles_.size(); ++t_id) {
     info_tile_map[t_id] = json_titles_.at(t_id).toString();
     tree_titles << json_titles_.at(t_id).toString();
@@ -152,7 +147,7 @@ void QTMainWindow::InitTreeView() {
   bom_model_->setHorizontalHeaderLabels(tree_titles);
 
   // 读取bom表的数据
-  QJsonObject bom_list = bom_json_info_["信息"].toObject();
+  QJsonObject bom_list = (*bom_json_info_)["信息"].toObject();
   QStringList keys = bom_list.keys();
 
   for (int k_id = 0; k_id < keys.size(); ++k_id) {
@@ -228,7 +223,6 @@ void QTMainWindow::currentChangedShot(const QModelIndex &selected,
   // 以及字典中的key
   // value，包括<部件名称> ，零件名称，方便后续检索以及状态更新
   QModelIndex std_item = index.sibling(index.row(), 0);
-  QString std_info = std_item.data(Qt::DisplayRole).toString();
 
   // 获取当前出库入库状态
   QModelIndex ruku_index = index.sibling(index.row(), 6);
@@ -236,22 +230,41 @@ void QTMainWindow::currentChangedShot(const QModelIndex &selected,
   bool is_chuku =
       (chuku_index.data(Qt::DisplayRole).toString() == QString("是"));
   bool is_ruku = (ruku_index.data(Qt::DisplayRole).toString() == QString("是"));
-  std_info.append("  出库状态 ");
-  if (is_chuku) {
-    std_info.append("[是]");
-  } else {
-    std_info.append("[否]");
-  }
-  std_info.append("  入库状态 ");
-  if (is_ruku) {
-    std_info.append("[是]");
-  } else {
-    std_info.append("[否]");
-  }
 
-  qDebug() << std_info;
+  // for DEBUG
+  cur_selected_standard_info_.std_name =
+      std_item.data(Qt::DisplayRole).toString();
+  cur_selected_standard_info_.part_name =
+      std_item.parent()
+          .sibling(std_item.parent().row(), 0)
+          .data(Qt::DisplayRole)
+          .toString();
+  cur_selected_standard_info_.weight =
+      std_item.sibling(std_item.row(), 3).data(Qt::DisplayRole).toDouble();
+  cur_selected_standard_info_.count =
+      std_item.sibling(std_item.row(), 4).data(Qt::DisplayRole).toInt();
+  qDebug() << cur_selected_standard_info_.std_name << ","
+           << cur_selected_standard_info_.part_name << ","
+           << cur_selected_standard_info_.weight << ","
+           << cur_selected_standard_info_.count;
+
+  // std_info.append("  出库状态 ");
+  // if (is_chuku) {
+  //   std_info.append("[是]");
+  // } else {
+  //   std_info.append("[否]");
+  // }
+  // std_info.append("  入库状态 ");
+  // if (is_ruku) {
+  //   std_info.append("[是]");
+  // } else {
+  //   std_info.append("[否]");
+  // }
+
   // QStandardItem *cur_item = bom_model_->itemFromIndex(index);
   // cur_item->setText(QString("点击"));
+
+  // 获取当前标准件信息
 
   // 当前标准件还未入库
   if (!is_chuku && !is_ruku) {
@@ -276,6 +289,37 @@ void QTMainWindow::on_ruku_clicked() {
     return;
   }
 
+  // 读取bom表的数据
+  QJsonObject bom_list = (*bom_json_info_)["信息"].toObject();
+  qDebug() << "select locker";
+  // 查找当前所有空柜子，随机分配一个柜子
+  int locker_ids[24] = {0,  1,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12,
+                        13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23};
+  std::map<int, bool> locker_state_map;
+  for (QJsonObject::Iterator it = bom_list.begin(); it != bom_list.end();
+       it++) {
+    QJsonObject parts = it.value().toObject();
+    for (QJsonObject::Iterator std_it = parts.begin(); std_it != parts.end();
+         std_it++) {
+      QJsonObject standard = std_it.value().toObject();
+      if (standard.contains("仓库编号")) {
+        int locker_id = standard["仓库编号"].toInt();
+        if (locker_id >= 0) {
+          locker_state_map[locker_id] = true;
+        }
+      }
+    }
+  }
+  int selected_locker_id = -1;
+  for (int l_id = 0; l_id < 24; ++l_id) {
+    int locker_id = locker_ids[l_id];
+    if (locker_state_map.count(locker_id) <= 0) {
+      // 找到第一个空闲的柜子
+      selected_locker_id = locker_id;
+    }
+  }
+  qDebug() << "select locker end:" << selected_locker_id;
+
   // TODO: 弹出入库窗口，进行入库操作
   ruku_->setWindowModality(Qt::ApplicationModal);
   Qt::WindowFlags flags = Qt::Dialog;
@@ -283,8 +327,11 @@ void QTMainWindow::on_ruku_clicked() {
   flags |= Qt::WindowMinimizeButtonHint;
   ruku_->setWindowFlags(flags);
   // 入库的柜门编号，入库的标准件重量
-  ruku_->Display();
+  ruku_->Display(cur_selected_standard_info_);
   ruku_->exec();
+
+  // 最后更新当前列表
+  UpdateTreeView();
 }
 
 void QTMainWindow::on_actExit_triggered() {
@@ -293,6 +340,33 @@ void QTMainWindow::on_actExit_triggered() {
   // hide current dialog
   this->hide();
 }
+
+void QTMainWindow::on_search_clicked() {
+  // 收起所有treeview
+  // 首先收回所有expand
+  ui->treeView->collapseAll();
+  // 读取搜索框中的内容
+  QString search_info = ui->lineEdit->text();
+  if (!search_info.isEmpty()) {
+    SearchStandardByID(search_info);
+    // 清空搜索框
+    ui->lineEdit->setText("");
+  }
+}
+
+void QTMainWindow::on_search_changed(const QString &text) {
+  QMap<QString, QString> STD_NAME_MAP;
+  STD_NAME_MAP["dianquan_4"] = "垫圈4";
+  STD_NAME_MAP["luoding_M_4_10"] = "螺钉M4*10";
+  STD_NAME_MAP["luoding_M_4_22"] = "螺钉M4*22";
+  STD_NAME_MAP["luoding_M_6_12"] = "螺钉M6*12";
+
+  if (STD_NAME_MAP.contains(text)) {
+    ui->lineEdit->setText(STD_NAME_MAP[text]);
+  }
+}
+
+void QTMainWindow::on_clear_clicked() { ui->lineEdit->setText(""); }
 
 void QTMainWindow::paintEvent(QPaintEvent *event) {
   //绘制窗口背景图片
