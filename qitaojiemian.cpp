@@ -248,7 +248,7 @@ void QTMainWindow::currentChangedShot(const QModelIndex &selected,
       (chuku_index.data(Qt::DisplayRole).toString() == QString("是"));
   bool is_ruku = (ruku_index.data(Qt::DisplayRole).toString() == QString("是"));
 
-  // for DEBUG
+  // 获取当前标准件信息
   cur_selected_standard_info_.std_name =
       std_item.data(Qt::DisplayRole).toString();
   cur_selected_standard_info_.part_name =
@@ -277,11 +277,6 @@ void QTMainWindow::currentChangedShot(const QModelIndex &selected,
   // } else {
   //   std_info.append("[否]");
   // }
-
-  // QStandardItem *cur_item = bom_model_->itemFromIndex(index);
-  // cur_item->setText(QString("点击"));
-
-  // 获取当前标准件信息
 
   // 当前标准件还未入库
   if (!is_chuku && !is_ruku) {
@@ -336,6 +331,7 @@ void QTMainWindow::on_ruku_clicked() {
     }
   }
   qDebug() << "select locker end:" << selected_locker_id;
+  cur_selected_standard_info_.locker_id = selected_locker_id;
 
   // TODO: 弹出入库窗口，进行入库操作
   ruku_->setWindowModality(Qt::ApplicationModal);

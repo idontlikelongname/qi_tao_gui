@@ -17,30 +17,27 @@ RuKu::RuKu(QJsonObject *bom_json, QWidget *parent)
   ui->setupUi(this);
   this->setWindowTitle(tr("入库对话框"));
 
-
-
-  //shezhizitidaxiao
+  // shezhizitidaxiao
   QFont font1("Microsoft YaHei", 30, 50, false);
   QFont font2("Microsoft YaHei", 20, 50, false);
   QFont font3("Microsoft YaHei", 26, 50, false);
 
   ui->captureButton->setFont(font2);
-  ui->captureButton->setFixedSize(200,60);
+  ui->captureButton->setFixedSize(200, 60);
 
   ui->exitButton->setFont(font2);
-  ui->exitButton->setFixedSize(200,60);
+  ui->exitButton->setFixedSize(200, 60);
 
   ui->finishButton->setFont(font2);
-  ui->finishButton->setFixedSize(200,60);
+  ui->finishButton->setFixedSize(200, 60);
 
   ui->label->setFont(font3);
   ui->label_2->setFont(font3);
-  ui->lineEdit->setFont(font1);
-  ui->lineEdit->setFixedSize(300,60);
-  ui->lineEdit_2->setFont(font1);
-  ui->lineEdit_2->setFixedSize(300,60);
+  ui->weightLine->setFont(font1);
+  ui->weightLine->setFixedSize(300, 60);
+  ui->countLine->setFont(font1);
+  ui->countLine->setFixedSize(300, 60);
   ui->groupBox_2->setFont(font2);
-
 
   Init();
 }
@@ -169,6 +166,11 @@ void RuKu::loopOnce() {
         read_length = bf_i + 6;
         current_scale_ = scale_data / 100.0;
 
+        current_estimate_count_ =
+            round(current_scale_ / cur_selected_standard_info_.weight);
+
+        ui->weightLine->setText(QString::number(current_scale_));
+        ui->countLine->setText(QString::number(current_estimate_count_));
         // TODO: 更新重量栏
       }
     }
@@ -202,23 +204,45 @@ void RuKu::captureImage_trigger() {
 void RuKu::finished_trigger() {
   qDebug() << "finished ruku";
   // TODO: 首先检查是否符合开门要求，不符合开门要求，弹窗警告
+  if (current_estimate_count_ != cur_selected_standard_info_.count) {
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("单发齐套柜");
+    msgBox.setText("请确认入库数量与标准数据是否一致");
+    // msgBox.setInformativeText("Do you want to start a new deck?");
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setStyleSheet(
+        "QLabel{width:300 px; font-size: 30px;} "
+        "QPushButton{ width:60 px; font-size: 20px;}");
+    int r = msgBox.exec();
 
-  // 打开柜门
-  int locker_number = 2;  // TODO:
+    if (msgBox.exec() != QMessageBox::Yes) {
+      return;
+    }
+  }
+
+  // 根据输入的柜门ID，打开相应的柜门
   char sender_cmd[13];
   strncpy(sender_cmd, OPEN_LOCKER, 13);
-  sender_cmd[10] = static_cast<char>(locker_number);
+  sender_cmd[10] = static_cast<char>(cur_selected_standard_info_.locker_id);
   serial_locker_.write(sender_cmd, 13);
 
   // 更新bom表中的信息
   QJsonObject bom_list = (*bom_json_info_)["信息"].toObject();
-  // 查找当前所有空柜子，随机分配一个柜子
   QJsonObject part_info =
       bom_list[cur_selected_standard_info_.part_name].toObject();
   QJsonObject standard_info =
       part_info[cur_selected_standard_info_.std_name].toObject();
+  // 更新信息，入库状态，柜子信息
   standard_info["入库状态"] = true;
   part_info[cur_selected_standard_info_.std_name] = standard_info;
+  for (QJsonObject::Iterator std_it = part_info.begin();
+       std_it != part_info.end(); ++std_it) {
+    //
+    QString std_key = std_it.key();
+    QJsonObject std_info = std_it.value().toObject();
+    std_info["仓库编号"] = cur_selected_standard_info_.locker_id;
+  }
   bom_list[cur_selected_standard_info_.part_name] = part_info;
   (*bom_json_info_)["信息"] = bom_list;
 }

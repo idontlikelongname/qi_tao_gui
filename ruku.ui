@@ -73,7 +73,7 @@
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QLineEdit" name="lineEdit_2">
+     <widget class="QLineEdit" name="weightLine">
       <property name="geometry">
        <rect>
         <x>90</x>
@@ -88,7 +88,7 @@
        </font>
       </property>
      </widget>
-     <widget class="QLineEdit" name="lineEdit">
+     <widget class="QLineEdit" name="countLine">
       <property name="geometry">
        <rect>
         <x>90</x>

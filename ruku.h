@@ -67,6 +67,7 @@ class RuKu : public QDialog {
   QSerialPort serial_scale_;
   QSerialPort serial_locker_;
   float current_scale_;
+  int current_estimate_count_;
   QByteArray scale_data_buffer_;
 };
 

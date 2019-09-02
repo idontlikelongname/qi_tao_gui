@@ -16,6 +16,7 @@ struct CurrentStandard {
   QString part_name;
   float weight;
   int count;
+  int locker_id;
 };
 
 /**
