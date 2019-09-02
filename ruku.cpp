@@ -108,8 +108,6 @@ void RuKu::OpenSerial() {
   serial_scale_.setDataBits(QSerialPort::Data8);
   serial_scale_.setStopBits(QSerialPort::OneStop);
   serial_scale_.setFlowControl(QSerialPort::NoFlowControl);
-  serial_scale_.clearError();
-  serial_scale_.clear();
   if (serial_scale_.open(QIODevice::ReadWrite)) {
     qDebug() << "Open Scale Serial Success";
     serial_scale_.clearError();
@@ -125,8 +123,6 @@ void RuKu::OpenSerial() {
   serial_locker_.setDataBits(QSerialPort::Data8);
   serial_locker_.setStopBits(QSerialPort::OneStop);
   serial_locker_.setFlowControl(QSerialPort::NoFlowControl);
-  serial_locker_.clearError();
-  serial_locker_.clear();
   if (serial_locker_.open(QIODevice::ReadWrite)) {
     qDebug() << "Open Locker Serial Success";
     serial_locker_.clearError();

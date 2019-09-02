@@ -11,11 +11,15 @@
 #include <QMap>
 #include <QMessageBox>
 #include <QPainter>
+#include <QSerialPort>
+#include <QSerialPortInfo>
 #include <QStandardItem>
 #include <QStandardItemModel>
+#include <QTimer>
 #include <QTreeView>
 
 #include "data_model.h"
+#include "serial_constant.h"
 
 namespace Ui {
 class ChKMainWindow;
@@ -35,6 +39,7 @@ class ChKMainWindow : public QMainWindow {
   void currentChangedShot(const QModelIndex &selected,
                           const QModelIndex &deselected);
   void on_chuku_clicked();
+  void open_locker_loop();
 
  private:
   Ui::ChKMainWindow *ui;
@@ -51,6 +56,12 @@ class ChKMainWindow : public QMainWindow {
   void InitTreeView();
   void UpdateTreeView();
   void paintEvent(QPaintEvent *event);
+
+  // 打开柜门相关变量
+  int cur_locker_id_;
+  QSerialPort serial_locker_;
+  QTimer *open_locker_timer_;
+  int open_locker_loop_time_;
 };
 
 #endif  // CHUKUJIEMIAN_H
