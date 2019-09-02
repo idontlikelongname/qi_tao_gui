@@ -22,7 +22,8 @@ SOURCES       = wigglywidget.cpp \
 target.path = $$[QT_INSTALL_EXAMPLES]/widgets/widgets/wiggly
 INSTALLS += target
 
-DISTFILES +=
+DISTFILES += \
+    resources/bom.json
 
 RESOURCES += \
     res.qrc

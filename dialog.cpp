@@ -13,7 +13,7 @@ Dialog::Dialog(QWidget *parent) : QDialog(parent) {
 }
 Dialog::~Dialog() {
   saveJsonFile(bom_json_info_,
-               QString("/home/yangxx/codes/Qt/qi_tao_gui/resources/bom.json"));
+               QString("/home/xiaoxiao/Qt/qi_tao_gui/resources/bom.json"));
 }
 void Dialog::Init() {
   // show text
@@ -69,9 +69,9 @@ void Dialog::Init() {
 
   // 从json文件中加载bom表信息
   bom_json_info_ = loadJsonFile(
-      QString("/home/yangxx/codes/Qt/qi_tao_gui/resources/bom.json"));
+      QString("/home/xiaoxiao/Qt/qi_tao_gui/resources/bom.json"));
 
-  dialog_chuku = new ChKMainWindow(this);
+  dialog_chuku = new ChKMainWindow(&bom_json_info_,this);
   dialog_qitao = new QTMainWindow(&bom_json_info_, this);
 }
 
