@@ -7,7 +7,7 @@ ChKMainWindow::ChKMainWindow(QJsonObject *bom_data, QWidget *parent)
 
   ui->setupUi(this);
 
-  cur_selected_chuku_index_ = QModelIndex();
+  // cur_selected_chuku_index_ = QModelIndex();
 
   Init();
 }
@@ -33,7 +33,7 @@ void ChKMainWindow::Init() {
   // ui->lineEdit->setFont(font3);
   // ui->lineEdit->setFixedSize(600, 70);
   // ui->pushButton->setFont(font3);
-  ui->openButton->setFont(font3);
+  ui->pushButton_2->setFont(font3);  // chukuButton
   ui->pushButton_3->setFont(font4);
   ui->pushButton_4->setFont(font4);
   ui->pushButton_5->setFont(font4);
@@ -65,11 +65,14 @@ void ChKMainWindow::Init() {
 
   InitTreeView();
 
+  connect(ui->treeView->selectionModel(),
+          SIGNAL(currentChanged(QModelIndex, QModelIndex)), this,
+          SLOT(currentChangedShot(const QModelIndex &, const QModelIndex &)));
+
   UpdateTreeView();
 
+  connect(ui->pushButton_2, SIGNAL(clicked()), this, SLOT(on_chuku_clicked()));
   connect(ui->actExit, SIGNAL(triggered()), this, SLOT(on_actExit_triggered()));
-  connect(ui->openButton, SIGNAL(clicked()), this,
-          SLOT(on_openButton_clicked()));
 }
 
 void ChKMainWindow::InitTreeView() {
@@ -211,6 +214,157 @@ void ChKMainWindow::UpdateTreeView() {
       }
     }
   }
+}
+
+void ChKMainWindow::UpdateTreeView() {
+  // 读取bom表的数据
+  QJsonObject bom_list = (*bom_json_info_)["信息"].toObject();
+  QStringList keys = bom_list.keys();
+  for (int row = 0; row < bom_model_->rowCount(); ++row) {
+    // 部件层
+    QStandardItem *part_item = bom_model_->item(row, 0);
+    QString part_name_text = part_item->data(Qt::DisplayRole).toString();
+    // qDebug() << part_name_text << " " << part_item->rowCount();
+    // 如果当前treeview中的part在json中存在，更新treeview中的信息
+    // 肯定包含
+    if (bom_list.contains(part_name_text)) {
+      //
+      QJsonObject standard_part_list = bom_list[part_name_text].toObject();
+      for (int std_idx = 0; std_idx < part_item->rowCount(); ++std_idx) {
+        QStandardItem *std_item = part_item->child(std_idx, 0);
+        QString std_name_text = std_item->data(Qt::DisplayRole).toString();
+        // qDebug() << std_name_text;
+        QJsonObject std_info = standard_part_list[std_name_text].toObject();
+        // 1. 编号 string
+        part_item->child(std_idx, 1)
+            ->setText(std_info[json_titles_.at(1).toString()].toString());
+        // 2. 规格 string
+        part_item->child(std_idx, 2)
+            ->setText(std_info[json_titles_.at(2).toString()].toString());
+        // 3. 单体重量 float
+        part_item->child(std_idx, 3)
+            ->setText(QString::number(
+                std_info[json_titles_.at(3).toString()].toDouble()));
+        // 4. 数量 int
+        part_item->child(std_idx, 4)
+            ->setText(QString::number(
+                std_info[json_titles_.at(4).toString()].toInt()));
+        // 5. 总重量 float
+        part_item->child(std_idx, 5)
+            ->setText(QString::number(
+                std_info[json_titles_.at(5).toString()].toDouble()));
+        // 6. 入库状态 bool
+        if (std_info[json_titles_.at(6).toString()].toBool()) {
+          part_item->child(std_idx, 6)->setText(QString("是"));
+        } else {
+          part_item->child(std_idx, 6)->setText(QString("否"));
+        }
+        // 7. 出库状态 bool
+        if (std_info[json_titles_.at(7).toString()].toBool()) {
+          part_item->child(std_idx, 7)->setText(QString("是"));
+        } else {
+          part_item->child(std_idx, 7)->setText(QString("否"));
+        }
+      }
+    }
+  }
+}
+
+void ChKMainWindow::currentChangedShot(const QModelIndex &selected,
+                                       const QModelIndex &deselected) {
+  // reset当前选定的标准件index
+
+  QModelIndex std_item;
+
+  cur_selected_chuku_index_ = QModelIndex();
+
+  QModelIndex index = ui->treeView->selectionModel()->currentIndex();
+  // 如果当前item不存在child节点，说明当前节点为零件节点
+  QStandardItem *cur_item = bom_model_->itemFromIndex(index);
+
+  if (!cur_item->hasChildren()) {
+    qDebug() << "不是标准件分支";
+    //  QModelIndex std_item = index.parent(index.row(), 0);
+    std_item = index.parent();
+    std_item = std_item.sibling(std_item.row(), 0);
+
+  }
+
+  else {
+    std_item = index.sibling(index.row(), 0);
+  }
+
+  // 获取当前出库入库状态
+  QModelIndex ruku_index = index.sibling(index.row(), 6);
+  QModelIndex chuku_index = index.sibling(index.row(), 7);
+  bool is_chuku =
+      (chuku_index.data(Qt::DisplayRole).toString() == QString("是"));
+  bool is_ruku = (ruku_index.data(Qt::DisplayRole).toString() == QString("是"));
+
+  // 当前标准件已入库且还未出库
+  if (!is_chuku && is_ruku) {
+    cur_selected_chuku_index_ = std_item;
+  }
+}
+
+void ChKMainWindow::on_chuku_clicked() {
+  //
+  // 如果当前未选中有效的index
+  if (QModelIndex() == cur_selected_chuku_index_) {
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("单发齐套柜");
+    msgBox.setText("出库前，请选中有效的标准件");
+    // msgBox.setInformativeText("Do you want to start a new deck?");
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setStandardButtons(QMessageBox::Yes);
+    msgBox.setStyleSheet(
+        "QLabel{width:300 px; font-size: 30px;} "
+        "QPushButton{ width:130 px; font-size: 35px;}");
+    int r = msgBox.exec();
+    return;
+  }
+
+  int cangku_num = 0;
+
+  //根据设备名找对应柜子
+  QJsonObject bom_list;
+  QString shebei_name =
+      cur_selected_chuku_index_.data(Qt::DisplayRole).toString();
+
+  QJsonObject bzj_list =
+      bom_list[shebei_name].toObject();  //获取了该设备下的所有标准件名称
+  qDebug() << "find locker";
+
+  //遍历Json，查找对应柜子的编号
+
+  // std::map<int, bool> locker_state_map;
+  for (QJsonObject::Iterator it = bzj_list.begin(); it != bzj_list.end();
+       it++) {
+    if (bzj_list["仓库编号"].toInt() > 0) {
+      cangku_num = bzj_list["仓库编号"].toInt();
+      break;
+    }
+  }
+
+  // 如果该柜子还未存储标准件，弹出对话框提示
+  if (cangku_num == 0) {
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("单发齐套柜");
+    msgBox.setText("该设备没有标准件入库");
+    // msgBox.setInformativeText("Do you want to start a new deck?");
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setStandardButtons(QMessageBox::Yes);
+    msgBox.setStyleSheet(
+        "QLabel{width:300 px; font-size: 30px;} "
+        "QPushButton{ width:130 px; font-size: 35px;}");
+    int r = msgBox.exec();
+    return;
+  }
+
+  //根据柜子编号cangku_num，打开柜子
+
+  // 最后更新当前列表
+  UpdateTreeView();
 }
 
 void ChKMainWindow::on_actExit_triggered() {

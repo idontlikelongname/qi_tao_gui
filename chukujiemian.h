@@ -32,7 +32,9 @@ class ChKMainWindow : public QMainWindow {
 
  private slots:
   void on_actExit_triggered();
-  void on_openButton_clicked();
+  void currentChangedShot(const QModelIndex &selected,
+                          const QModelIndex &deselected);
+  void on_chuku_clicked();
 
  private:
   Ui::ChKMainWindow *ui;
