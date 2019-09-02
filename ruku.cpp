@@ -15,6 +15,33 @@ RuKu::RuKu(QJsonObject *bom_json, QWidget *parent)
   //                                             Qt::WindowCloseButtonHint));
   // this->setFixedSize(this->width(), this->height());
   ui->setupUi(this);
+  this->setWindowTitle(tr("入库对话框"));
+
+
+
+  //shezhizitidaxiao
+  QFont font1("Microsoft YaHei", 30, 50, false);
+  QFont font2("Microsoft YaHei", 20, 50, false);
+  QFont font3("Microsoft YaHei", 26, 50, false);
+
+  ui->captureButton->setFont(font2);
+  ui->captureButton->setFixedSize(200,60);
+
+  ui->exitButton->setFont(font2);
+  ui->exitButton->setFixedSize(200,60);
+
+  ui->finishButton->setFont(font2);
+  ui->finishButton->setFixedSize(200,60);
+
+  ui->label->setFont(font3);
+  ui->label_2->setFont(font3);
+  ui->lineEdit->setFont(font1);
+  ui->lineEdit->setFixedSize(300,60);
+  ui->lineEdit_2->setFont(font1);
+  ui->lineEdit_2->setFixedSize(300,60);
+  ui->groupBox_2->setFont(font2);
+
+
   Init();
 }
 

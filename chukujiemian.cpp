@@ -7,17 +7,22 @@ ChKMainWindow::ChKMainWindow(QWidget *parent)
 
   ui->setupUi(this);
   //设置自体大小
-  QFont font1("Microsoft YaHei", 26, 50, false);
-  QFont font2("Microsoft YaHei", 18, 50, false);
-  QFont font3("Microsoft YaHei", 18, 50, false);
-  QFont font4("Microsoft YaHei", 14, 50, false);
+//  QFont font1("Microsoft YaHei", 26, 50, false);
+//  QFont font2("Microsoft YaHei", 18, 50, false);
+//  QFont font3("Microsoft YaHei", 18, 50, false);
+//  QFont font4("Microsoft YaHei", 14, 50, false);
+
+    QFont font1("Microsoft YaHei", 36, 50, false);
+    QFont font2("Microsoft YaHei", 32, 50, false);
+    QFont font3("Microsoft YaHei", 28, 50, false);
+    QFont font4("Microsoft YaHei", 24, 50, false);
   ui->menubar->setFont(font1);
   ui->toolBar->setFont(font2);
-  ui->label->setFont(font3);
+  //ui->label->setFont(font3);
   ui->label_2->setFont(font3);
-  ui->lineEdit->setFont(font3);
-  ui->lineEdit->setFixedSize(600, 70);
-  ui->pushButton->setFont(font3);
+  //ui->lineEdit->setFont(font3);
+  //ui->lineEdit->setFixedSize(600, 70);
+  //ui->pushButton->setFont(font3);
   ui->pushButton_2->setFont(font3);
   ui->pushButton_3->setFont(font4);
   ui->pushButton_4->setFont(font4);

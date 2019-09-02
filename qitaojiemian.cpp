@@ -19,18 +19,26 @@ QTMainWindow::~QTMainWindow() { delete ui; }
 
 void QTMainWindow::Init() {
   //设置自体大小
-  QFont font1("Microsoft YaHei", 26, 50, false);
-  QFont font2("Microsoft YaHei", 18, 50, false);
-  QFont font3("Microsoft YaHei", 18, 50, false);
+  QFont font1("Microsoft YaHei", 36, 50, false);
+  QFont font2("Microsoft YaHei", 32, 50, false);
+  QFont font3("Microsoft YaHei", 28, 50, false);
+  QFont font4("Microsoft YaHei", 24, 50, false);
 
   ui->menubar->setFont(font1);
   ui->toolBar->setFont(font2);
+  // ui->toolBar->setIconSize(QSize(50,50));
+  // ui->toolBar->setFixedSize(150,150);
 
   ui->label_3->setFont(font3);
   ui->label_4->setFont(font3);
   ui->lineEdit->setFont(font3);
   ui->searchButton->setFont(font3);
+  ui->qingchuButton->setFont(font3);
+
   ui->rukuButton->setFont(font3);
+  ui->rukuButton->setFixedSize(300, 70);
+
+  ui->treeView->setFont(font4);
 
   ui->toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
   this->setWindowState(Qt::WindowMaximized);
@@ -202,6 +210,15 @@ void QTMainWindow::InitTreeView() {
   }
 
   ui->treeView->setModel(bom_model_);
+
+  ui->treeView->setColumnWidth(0, 500);
+  ui->treeView->setColumnWidth(1, 320);
+  ui->treeView->setColumnWidth(2, 220);
+  ui->treeView->setColumnWidth(3, 200);
+  ui->treeView->setColumnWidth(4, 200);
+  ui->treeView->setColumnWidth(5, 200);
+  ui->treeView->setColumnWidth(6, 200);
+
   ui->treeView->resize(500, 500);
   ui->treeView->show();
   // ui->treeView->expandAll();
