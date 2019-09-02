@@ -32,6 +32,9 @@ class ChKMainWindow : public QMainWindow {
 
  private slots:
   void on_actExit_triggered();
+  void currentChangedShot(const QModelIndex &selected,
+                          const QModelIndex &deselected);
+  void on_chuku_clicked();
 
 
  private:
@@ -43,7 +46,7 @@ class ChKMainWindow : public QMainWindow {
 
   // 当前选中的零件
   QModelIndex cur_selected_chuku_index_;
-  CurrentStandard cur_selected_standard_info_;
+  //CurrentStandard cur_selected_standard_info_;
 
 
   void Init();
