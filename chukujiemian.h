@@ -41,6 +41,10 @@ class ChKMainWindow : public QMainWindow {
   QJsonObject *bom_json_info_;
   QJsonArray json_titles_;
 
+  // 当前选中的零件
+  QModelIndex cur_selected_chuku_index_;
+  // CurrentStandard cur_selected_standard_info_;
+
   void Init();
   void InitTreeView();
   void UpdateTreeView();

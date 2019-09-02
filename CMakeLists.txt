@@ -34,10 +34,12 @@ add_executable(dan_fa_qi_tao
     wigglywidget.cpp 
     ruku.cpp 
     data_model.cpp
+    yilantable.cpp
     res.qrc  
     qitaojiemian.ui     
     chukujiemian.ui
     ruku.ui
+    yilantable.ui
 )
 
 target_link_libraries(dan_fa_qi_tao 

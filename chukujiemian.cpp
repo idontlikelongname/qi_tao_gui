@@ -7,6 +7,8 @@ ChKMainWindow::ChKMainWindow(QJsonObject *bom_data, QWidget *parent)
 
   ui->setupUi(this);
 
+  cur_selected_chuku_index_ = QModelIndex();
+
   Init();
 }
 
