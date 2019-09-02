@@ -8,7 +8,8 @@ HEADERS       = wigglywidget.h \
     qitaojiemian.h \
     chukujiemian.h \
     qwcomboboxdelegate.h \
-    ruku.h
+    ruku.h \
+    yilantable.h
 
 SOURCES       = wigglywidget.cpp \
                 dialog.cpp \
@@ -16,7 +17,8 @@ SOURCES       = wigglywidget.cpp \
     qitaojiemian.cpp \
     chukujiemian.cpp \
     qwcomboboxdelegate.cpp \
-    ruku.cpp
+    ruku.cpp \
+    yilantable.cpp
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/widgets/widgets/wiggly
@@ -31,4 +33,5 @@ RESOURCES += \
 FORMS += \
     qitaojiemian.ui \
     chukujiemian.ui \
-    ruku.ui
+    ruku.ui \
+    yilantable.ui

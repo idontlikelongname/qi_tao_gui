@@ -1,21 +1,26 @@
-#include "chukujiemian.h"
-#include "ui_chukujiemian.h"
+#include "yilantable.h"
+#include "ui_yilantable.h"
 
-ChKMainWindow::ChKMainWindow(QJsonObject *bom_data,QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::ChKMainWindow) , bom_json_info_(bom_data) {
+yilantable::yilantable(QJsonObject *bom_data,QWidget *parent) :
+    QMainWindow(parent),bom_json_info_(bom_data),
+    ui(new Ui::yilantable)
+{
+    parent_dlg = parent;
 
-  parent_dlg = parent;
+    ui->setupUi(this);
 
-  ui->setupUi(this);
-
-  cur_selected_chuku_index_ = QModelIndex();
-
-  Init();
+    Init();
 }
 
-ChKMainWindow::~ChKMainWindow() { delete ui; }
 
-void ChKMainWindow::Init() {
+
+yilantable::~yilantable()
+{
+    delete ui;
+}
+
+
+void yilantable::Init() {
 
     //设置自体大小
   //  QFont font1("Microsoft YaHei", 26, 50, false);
@@ -24,57 +29,36 @@ void ChKMainWindow::Init() {
   //  QFont font4("Microsoft YaHei", 14, 50, false);
 
     QFont font1("Microsoft YaHei", 36, 50, false);
-    QFont font2("Microsoft YaHei", 32, 50, false);
+    //QFont font2("Microsoft YaHei", 32, 50, false);
     QFont font3("Microsoft YaHei", 28, 50, false);
     QFont font4("Microsoft YaHei", 24, 50, false);
 
+
     ui->menubar->setFont(font1);
-    ui->toolBar->setFont(font2);
-    //ui->label->setFont(font3);
-    ui->label_2->setFont(font3);
-    //ui->lineEdit->setFont(font3);
-    //ui->lineEdit->setFixedSize(600, 70);
-    //ui->pushButton->setFont(font3);
-    ui->pushButton_2->setFont(font3);
-    ui->pushButton_3->setFont(font4);
-    ui->pushButton_4->setFont(font4);
-    ui->pushButton_5->setFont(font4);
-    ui->pushButton_6->setFont(font4);
-    ui->pushButton_7->setFont(font4);
-    ui->pushButton_8->setFont(font4);
-    ui->pushButton_9->setFont(font4);
-    ui->pushButton_10->setFont(font4);
-    ui->pushButton_11->setFont(font4);
-    ui->pushButton_12->setFont(font4);
-    ui->pushButton_13->setFont(font4);
-    ui->pushButton_14->setFont(font4);
-    ui->pushButton_15->setFont(font4);
-    ui->pushButton_16->setFont(font4);
-    ui->pushButton_17->setFont(font4);
-    ui->pushButton_18->setFont(font4);
-    ui->pushButton_19->setFont(font4);
-    ui->pushButton_20->setFont(font4);
-    ui->pushButton_21->setFont(font4);
-    ui->pushButton_22->setFont(font4);
-    ui->pushButton_23->setFont(font4);
-    ui->pushButton_24->setFont(font4);
-    ui->pushButton_25->setFont(font4);
-    ui->pushButton_26->setFont(font4);
+    ui->lineEdit->setFont(font3);
+    ui->lineEdit->setFixedSize(500,70);
+
+    ui->exitButton->setFont(font3);
+    ui->exitButton->setFixedSize(300,70);
+
     ui->treeView->setFont(font4);
 
-    ui->toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+
+//    ui->toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+
     this->setWindowState(Qt::WindowMaximized);
 
     InitTreeView();
 
     UpdateTreeView();
 
-    connect(ui->actExit, SIGNAL(triggered()), this, SLOT(on_actExit_triggered()));
+    connect(ui->exitButton, SIGNAL(clicked(bool)), this, SLOT(on_exitButton_triggered()));
 
 
 }
 
-void ChKMainWindow::InitTreeView(){
+
+void yilantable::InitTreeView(){
     // init the part tree
     bom_model_ = new QStandardItemModel();
 
@@ -158,12 +142,12 @@ void ChKMainWindow::InitTreeView(){
 
     ui->treeView->resize(500, 500);
     ui->treeView->show();
-    // ui->treeView->expandAll();
+    ui->treeView->expandAll();
 
 }
 
 
-void ChKMainWindow::UpdateTreeView(){
+void yilantable::UpdateTreeView(){
     // 读取bom表的数据
     QJsonObject bom_list = (*bom_json_info_)["信息"].toObject();
     QStringList keys = bom_list.keys();
@@ -219,15 +203,15 @@ void ChKMainWindow::UpdateTreeView(){
 
 }
 
+void yilantable::on_exitButton_triggered() {
+    // show parent dialog
+    parent_dlg->show();
+    // hide current dialog
+    this->hide();
 
-void ChKMainWindow::on_actExit_triggered() {
-  // show parent dialog
-  parent_dlg->show();
-  // hide current dialog
-  this->hide();
 }
 
-void ChKMainWindow::paintEvent(QPaintEvent *event) {  //绘制窗口背景图片
+void yilantable::paintEvent(QPaintEvent *event) {  //绘制窗口背景图片
   Q_UNUSED(event);
   QPainter painter(this);
 
@@ -236,7 +220,7 @@ void ChKMainWindow::paintEvent(QPaintEvent *event) {  //绘制窗口背景图片
   //                       QPixmap(":/images/images/back2.jpg"));
 
   painter.drawPixmap(
-      0, ui->toolBar->height(), this->width(),
-      this->height() - ui->toolBar->height() - ui->statusbar->height(),
-      QPixmap(":/images/images/qingxin1.jpeg"));
+      0, ui->statusbar->height(), this->width(),
+      this->height() - ui->statusbar->height(),
+      QPixmap(":/images/images/scenery.jpeg"));
 }

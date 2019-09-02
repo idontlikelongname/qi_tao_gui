@@ -29,6 +29,8 @@ QT_END_NAMESPACE
 #include "chukujiemian.h"
 #include "data_model.h"
 #include "qitaojiemian.h"
+#include "yilantable.h"
+
 
 class Dialog : public QDialog {
   Q_OBJECT
@@ -42,8 +44,8 @@ class Dialog : public QDialog {
 
  private:
   QGroupBox *horizontalGroupBox;
-  QPushButton *qitaobutton;
   QPushButton *chukubutton;
+  QPushButton *qitaobutton;
   QPushButton *yilanbutton;
   QPushButton *qingchubutton;
   QDialogButtonBox *buttonBox;
@@ -58,6 +60,8 @@ class Dialog : public QDialog {
   QJsonObject bom_json_info_;
   QTMainWindow *dialog_qitao;
   ChKMainWindow *dialog_chuku;
+  yilantable *yilan_win;
+
 };
 //! [0]
 

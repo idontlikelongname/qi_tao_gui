@@ -73,6 +73,9 @@ void Dialog::Init() {
 
   dialog_chuku = new ChKMainWindow(&bom_json_info_,this);
   dialog_qitao = new QTMainWindow(&bom_json_info_, this);
+  yilan_win = new yilantable(&bom_json_info_,this);
+
+
 }
 
 void Dialog::OnClickQiTao() {
@@ -92,6 +95,11 @@ void Dialog::OnClickChuKu() {
 
 void Dialog::showyilantable() {
   //展示整个表格
+    yilan_win->setWindowModality(Qt::ApplicationModal);
+    yilan_win->setWindowState(yilan_win->windowState() |
+                                 Qt::WindowMaximized);
+    yilan_win->show();
+
 }
 
 void Dialog::qingchualldata() {

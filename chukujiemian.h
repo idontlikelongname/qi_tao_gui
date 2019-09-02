@@ -33,12 +33,17 @@ class ChKMainWindow : public QMainWindow {
  private slots:
   void on_actExit_triggered();
 
+
  private:
   Ui::ChKMainWindow *ui;
 
   QStandardItemModel *bom_model_;
   QJsonObject *bom_json_info_;
   QJsonArray json_titles_;
+
+  // 当前选中的零件
+  QModelIndex cur_selected_chuku_index_;
+  CurrentStandard cur_selected_standard_info_;
 
 
   void Init();
