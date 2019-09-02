@@ -9,7 +9,7 @@ RuKu::RuKu(QJsonObject *bom_json, QWidget *parent)
       ui(new Ui::RuKuDialog),
       camera_cap_(NULL),
       bom_json_info_(bom_json),
-      open_locker_loop_time_(0) {
+      open_locker_loop_time_(-1) {
   // 禁止调整窗口大小 移动窗口
   // this->setWindowFlags(this->windowFlags() | (Qt::WindowMaximizeButtonHint |
   //                                             Qt::WindowMinimizeButtonHint |
@@ -65,6 +65,7 @@ void RuKu::Display(CurrentStandard cur_standard_info) {
   current_scale_ = 0.0;
   scale_data_buffer_.clear();
   cur_selected_standard_info_ = cur_standard_info;
+  ui->previousImage->clear();
 
   // TODO: try catch
   OpenCamera();
@@ -107,6 +108,8 @@ void RuKu::OpenSerial() {
   serial_scale_.setDataBits(QSerialPort::Data8);
   serial_scale_.setStopBits(QSerialPort::OneStop);
   serial_scale_.setFlowControl(QSerialPort::NoFlowControl);
+  serial_scale_.clearError();
+  serial_scale_.clear();
   if (serial_scale_.open(QIODevice::ReadWrite)) {
     qDebug() << "Open Scale Serial Success";
     serial_scale_.clearError();
@@ -122,6 +125,8 @@ void RuKu::OpenSerial() {
   serial_locker_.setDataBits(QSerialPort::Data8);
   serial_locker_.setStopBits(QSerialPort::OneStop);
   serial_locker_.setFlowControl(QSerialPort::NoFlowControl);
+  serial_locker_.clearError();
+  serial_locker_.clear();
   if (serial_locker_.open(QIODevice::ReadWrite)) {
     qDebug() << "Open Locker Serial Success";
     serial_locker_.clearError();
@@ -130,6 +135,10 @@ void RuKu::OpenSerial() {
 }
 
 void RuKu::CloseSerial() {
+  serial_locker_.clearError();
+  serial_locker_.clear();
+  serial_scale_.clearError();
+  serial_scale_.clear();
   serial_scale_.close();
   serial_locker_.close();
 }
@@ -168,7 +177,7 @@ void RuKu::loopOnce() {
         scale_data |= (0xff & scale_data_buffer_.at(bf_i + 4)) << 16;
         scale_data |= (0xff & scale_data_buffer_.at(bf_i + 5)) << 8;
         scale_data |= (0xff & scale_data_buffer_.at(bf_i + 6));
-        qDebug() << "Read Valid scale:" << static_cast<int32_t>(scale_data);
+        // qDebug() << "Read Valid scale:" << static_cast<int32_t>(scale_data);
         read_length = bf_i + 6;
         current_scale_ = scale_data / 100.0;
 
@@ -243,15 +252,17 @@ void RuKu::finished_trigger() {
       part_info[cur_selected_standard_info_.std_name].toObject();
   // 更新信息，入库状态，柜子信息
   standard_info["入库状态"] = true;
+  // 更新该设备下的所有标准件的柜子编号
   part_info[cur_selected_standard_info_.std_name] = standard_info;
   for (QJsonObject::Iterator std_it = part_info.begin();
        std_it != part_info.end(); ++std_it) {
     //
-    QString std_key = std_it.key();
+    QString std_name = std_it.key();
     QJsonObject std_info = std_it.value().toObject();
     std_info["仓库编号"] = cur_selected_standard_info_.locker_id;
-    part_info[std_key] = std_info;
+    part_info[std_name] = std_info;
   }
+  // 更新设备信息
   bom_list[cur_selected_standard_info_.part_name] = part_info;
   (*bom_json_info_)["信息"] = bom_list;
 }
@@ -275,7 +286,6 @@ void RuKu::exit_trigger() {
 }
 
 void RuKu::scale_readyReadSlot() {
-  qDebug() << "Scale Ready Read";
   QByteArray arr = serial_scale_.readLine();
 
   for (int i = 0; i < arr.size(); ++i) {
@@ -287,14 +297,17 @@ void RuKu::locker_readyReadSlot() {}
 
 void RuKu::open_locker_loop() {
   if (open_locker_loop_time_ <= 0) {
+    open_locker_loop_time_ = -1;
     open_locker_timer_->stop();
+    return;
   }
 
   // 根据输入的柜门ID，打开相应的柜门
+  // qDebug() << "Open Loop Time:" << open_locker_loop_time_;
   qDebug() << "Open the locker:" << cur_selected_standard_info_.locker_id;
   char sender_cmd[13];
   memcpy(sender_cmd, OPEN_LOCKER, 13);
-  sender_cmd[10] = 0x00 + 4;
+  sender_cmd[10] = 0x00 + cur_selected_standard_info_.locker_id;
   serial_locker_.write(sender_cmd, 13);
-  open_locker_timer_--;
+  open_locker_loop_time_--;
 }

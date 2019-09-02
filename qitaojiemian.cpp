@@ -234,7 +234,7 @@ void QTMainWindow::currentChangedShot(const QModelIndex &selected,
   // 如果当前item不存在child节点，说明当前节点为零件节点
   QStandardItem *cur_item = bom_model_->itemFromIndex(index);
   if (cur_item->hasChildren()) {
-    qDebug() << "不是标准件分支";
+    // qDebug() << "不是标准件分支";
     return;
   }
   // 获取当前零件的所有信息
@@ -261,10 +261,10 @@ void QTMainWindow::currentChangedShot(const QModelIndex &selected,
       std_item.sibling(std_item.row(), 3).data(Qt::DisplayRole).toDouble();
   cur_selected_standard_info_.count =
       std_item.sibling(std_item.row(), 4).data(Qt::DisplayRole).toInt();
-  qDebug() << cur_selected_standard_info_.std_name << ","
-           << cur_selected_standard_info_.part_name << ","
-           << cur_selected_standard_info_.weight << ","
-           << cur_selected_standard_info_.count;
+  // qDebug() << cur_selected_standard_info_.std_name << ","
+  //          << cur_selected_standard_info_.part_name << ","
+  //          << cur_selected_standard_info_.weight << ","
+  //          << cur_selected_standard_info_.count;
 
   // std_info.append("  出库状态 ");
   // if (is_chuku) {
@@ -304,37 +304,53 @@ void QTMainWindow::on_ruku_clicked() {
 
   // 读取bom表的数据
   QJsonObject bom_list = (*bom_json_info_)["信息"].toObject();
-  qDebug() << "select locker";
+
+  int selected_locker_id = -1;
+  // 获取当前列表的信息，如果设备已经有一部分零件入库，直接采用原来的柜门编号
+  // 否则，重新寻找一个空的柜门
+  QJsonObject part_object =
+      bom_list[cur_selected_standard_info_.part_name].toObject();
+  QJsonObject standard_object =
+      part_object[cur_selected_standard_info_.std_name].toObject();
+  selected_locker_id = standard_object["仓库编号"].toInt();
+  qDebug() << "default locker id:" << selected_locker_id;
+
   // 查找当前所有空柜子，随机分配一个柜子
-  int locker_ids[24] = {1,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13,
-                        14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
-  std::map<int, bool> locker_state_map;
-  for (QJsonObject::Iterator it = bom_list.begin(); it != bom_list.end();
-       it++) {
-    QJsonObject parts = it.value().toObject();
-    for (QJsonObject::Iterator std_it = parts.begin(); std_it != parts.end();
-         std_it++) {
-      QJsonObject standard = std_it.value().toObject();
-      if (standard.contains("仓库编号")) {
-        int locker_id = standard["仓库编号"].toInt();
-        if (locker_id >= 0) {
-          locker_state_map[locker_id] = true;
+  if (selected_locker_id <= 0) {
+    int locker_ids[24] = {1,  2,  3, 4, 17, 18, 15, 22, 13, 14, 19, 16,
+                          20, 21, 5, 6, 7,  8,  11, 12, 9,  23, 24, 10};
+    std::map<int, bool> locker_state_map;
+    for (QJsonObject::Iterator it = bom_list.begin(); it != bom_list.end();
+         it++) {
+      QJsonObject parts = it.value().toObject();
+      for (QJsonObject::Iterator std_it = parts.begin(); std_it != parts.end();
+           std_it++) {
+        QJsonObject standard = std_it.value().toObject();
+        if (standard.contains("仓库编号")) {
+          int locker_id = standard["仓库编号"].toInt();
+          if (locker_id >= 0) {
+            locker_state_map[locker_id] = true;
+          }
         }
+      }
+    }
+    for (int l_id = 0; l_id < 24; ++l_id) {
+      int locker_id = locker_ids[l_id];
+      if (locker_state_map.count(locker_id) <= 0) {
+        // 找到第一个空闲的柜子
+        selected_locker_id = locker_id;
+        break;
       }
     }
   }
 
-  int selected_locker_id = -1;
-  for (int l_id = 0; l_id < 24; ++l_id) {
-    int locker_id = locker_ids[l_id];
-    if (locker_state_map.count(locker_id) <= 0) {
-      // 找到第一个空闲的柜子
-      selected_locker_id = locker_id;
-    }
-  }
-
-  qDebug() << "select locker end:" << selected_locker_id;
   cur_selected_standard_info_.locker_id = selected_locker_id;
+
+  qDebug() << cur_selected_standard_info_.std_name << ","
+           << cur_selected_standard_info_.part_name << ","
+           << cur_selected_standard_info_.weight << ","
+           << cur_selected_standard_info_.count << ","
+           << cur_selected_standard_info_.locker_id;
 
   // TODO: 弹出入库窗口，进行入库操作
   ruku_->setWindowModality(Qt::ApplicationModal);

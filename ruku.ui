@@ -14,39 +14,6 @@
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="title">
-      <string>照片显示区</string>
-     </property>
-     <widget class="QLabel" name="previousImage">
-      <property name="geometry">
-       <rect>
-        <x>360</x>
-        <y>30</y>
-        <width>171</width>
-        <height>171</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-     <widget class="QLabel" name="cameraImage">
-      <property name="geometry">
-       <rect>
-        <x>50</x>
-        <y>30</y>
-        <width>201</width>
-        <height>171</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </widget>
-   </item>
    <item row="1" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
@@ -128,10 +95,15 @@
       <property name="geometry">
        <rect>
         <x>520</x>
-        <y>50</y>
+        <y>22</y>
         <width>149</width>
-        <height>33</height>
+        <height>61</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>17</pointsize>
+       </font>
       </property>
       <property name="text">
        <string>拍照</string>
@@ -141,10 +113,15 @@
       <property name="geometry">
        <rect>
         <x>520</x>
-        <y>130</y>
+        <y>102</y>
         <width>149</width>
-        <height>33</height>
+        <height>61</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>17</pointsize>
+       </font>
       </property>
       <property name="text">
        <string>打开柜门</string>
@@ -154,13 +131,59 @@
       <property name="geometry">
        <rect>
         <x>520</x>
-        <y>210</y>
+        <y>182</y>
         <width>149</width>
-        <height>33</height>
+        <height>61</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>17</pointsize>
+       </font>
       </property>
       <property name="text">
        <string>退出</string>
+      </property>
+     </widget>
+     <zorder>label_2</zorder>
+     <zorder>weightLine</zorder>
+     <zorder>countLine</zorder>
+     <zorder>label</zorder>
+     <zorder>captureButton</zorder>
+     <zorder>finishButton</zorder>
+     <zorder>exitButton</zorder>
+     <zorder>groupBox_2</zorder>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>照片显示区</string>
+     </property>
+     <widget class="QLabel" name="previousImage">
+      <property name="geometry">
+       <rect>
+        <x>460</x>
+        <y>30</y>
+        <width>361</width>
+        <height>221</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QLabel" name="cameraImage">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>391</width>
+        <height>271</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
       </property>
      </widget>
     </widget>
